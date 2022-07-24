@@ -1,0 +1,1586 @@
+----------------------------------------------------------------------------------------------------------------------------------------
+The Linux Kernel
+	REF:https://www.redhat.com/en/topics/linux/what-is-the-linux-kernel
+	- Handles the rest of the start-up process
+	- Handles the input/output requests from other programs
+	- Manages memory and hardware peripherals
+		-> keyboard
+		-> Monitors
+		-> Printers
+		-> Speatkers
+----------------------------------------------------------------------------------------------------------------------------------------
+Directories:
+	/bin	-> Contains binaries for use by all users. (-> /usr/bin)
+	/sbin 	-> Contains binaries to configure the operating system, many of system binaries require root privilege to perform certain tasks. (-> /usr/sbin)
+	/etc 	-> Contains configuration files for programs and packages
+	/var 	-> Variable data specific to system. This data should not be removed or changed when the system reboots.
+				,Logs files tend to be stored within the /var/log directory.
+
+	/run	-> Runtime data for processes since last boot
+	/home	-> Location of home directories; used for storing personal documents and information on	the system.
+	/root	-> root user home directory
+	/tmp 	-> Files are removed after ten days; universal read/write permissions , applications and users use for temporary data when needed.
+	/boot 	-> Files needed to start the system boot process.
+	/dev 	-> Contains information on essential devices.
+	/usr/	-> standards fro Unix System Resources which contain shareable, read only data.
+	/usr/local -> It contains locally installed files.
+	
+	for more details:
+		$man hier
+----------------------------------------------------------------------------------------------------------------------------------------
+Files:
+	/etc/shadow 			-> File store pasword hash 
+		
+	/etc/passwd 			-> File store infromation about the users
+		
+	/etc/defualt/useradd 	-> File store defaults for creating a user ( to view it => cat /etc/default/useradd or useradd -D)	
+		
+	/etc/login.defs			-> File store Defualts of users creation
+		
+	/etc/group 				-> File store Groups 
+		
+	/etc/httpd/conf.d/userdir.conf -> File store the configuration of appache server 
+----------------------------------------------------------------------------------------------------------------------------------------
+Calculate the size of a folder:
+	$du –sh folder1
+	$du -bsh
+----------------------------------------------------------------------------------------------------------------------------------------
+Find a specific key work in file or files in specific location:	
+	$grep -irw /location -e 'KEY-WORD' -e "KEY-WORD" 2> /dev/null
+	 grep -irw /etc/ -e 'mahmoud'
+	 -i --> ignore case distinctions
+	 -l --> print only names of files with selected lines
+	 -r --> option tells grep to read all files under each directory, recursively
+	 -w --> instructs it to select only those lines containing matches that form whole words
+	 -e --> is used to specify the string (pattern) to be searched.
+
+	$grep -l KEY-WORD /location 2> /dev/null
+	 grep -l mahmoud /etc/* 2> /dev/null
+
+	$find /location -exec grep -l KEY-WORD {} \; 2> /dev/null 
+	 find /etc  -exec grep -l mahmoud {} \; 2> /dev/null
+	 find /etc  -size +2k  -exec grep -l mahmoud {} \; -exec ls -lh {} \; 2> /dev/null 
+----------------------------------------------------------------------------------------------------------------------------------------
+Common Text tools:
+	->head 
+		$head -n nn file-name	# show the nn first lines of a file
+	
+	->tail
+		$tail -n nn  file-name 	# show the nn last lines of a file
+		$tail -f file-name
+
+	->cat 
+		$cat -b file-name 		# show a file
+
+	->sed 
+		$sed -i s/old-text/new-text/g file-name		#change old-text with new-text and g represent to apply to the entire file 
+----------------------------------------------------------------------------------------------------------------------------------------
+Regular expressions:
+	REF:https://www.guru99.com/linux-regular-expressions.html
+	REF:https://www.tutorialspoint.com/unix/unix-regular-expressions.htm
+	.	---> replace any character
+	^	---> matches start of string
+	$	---> matches end of string
+	*	---> matches zero or more occurrences of the previous character
+	?	---> matches up exactly one character
+	\+	---> matches one or more occurrence of the previous character
+	\?	---> matches zero or one occurrence of the previous character
+
+	The sed General Syntax /pattern/actions
+		- where pattern is a regular expression 
+		- action is one of these commands 
+			1. p ---> prints the line
+			2. d ---> deletes the line 
+			3. s/pattern1/pattern2/	
+
+	$cat /etc/passwd | sed '/nologin$/d' #Match any line with a end of "nologin" and delete them
+----------------------------------------------------------------------------------------------------------------------------------------
+Hard and Symbolic Links:
+	REF:https://ostechnix.com/explaining-soft-link-and-hard-link-in-linux-with-examples/$:~:text=A%20symbolic%20or%20soft%20link,copy%20of%20the%20original%20file.&text=Even%20if%20you%20delete%20the,copy%20of%20the%20original%20file.
+	->Symbolic Links (think of it like a short cut in windows) called also symbolic links
+		- can cross the file system,
+		- allows you to link between directories,
+		- has different inode number and file permissions than original file,
+		- permissions will not be updated,
+		- has only the path of the original file, not the contents.
+		$ln -s TARGET LINK_NAME  --> create a Symbolic link
+		
+	->Hard Links (think of it like a copy of the file or backup of the file)
+		- can't cross the file system boundaries (i.e. A hardlink can only work on the same filesystem),
+		- can't link directories,
+		- has the same inode number and permissions of original file,
+		- permissions will be updated if we change the permissions of source file,
+		- has the actual contents of original file, so that you still can view the contents, even if the original file moved or removed.
+		$ln TARGET LINK_NAME     --> create a hard link
+
+	->Note:	
+		- removing the original file in Symbolic Links cause broken link 
+		- but in Hard Link removing the file will be exist on the different location until you remove all links and the original file the 
+		  data will not exist anymore.
+
+	->Show the inode number
+		$ls -il 
+----------------------------------------------------------------------------------------------------------------------------------------
+Redirection:
+	1. Input redirection
+		- "<" used for standard input (STDIN) redirection
+		- File Descriptor 0
+		$Mail -s "Subject" to-address < Filename
+	
+	2. Output redirection 
+		- ">" used for standard output (STDOUT) redirection
+		- File Descriptor 1
+		$ls -al > listings
+	
+	3. Error redirection
+		- "2>" used for standard error (STDERR) redirection
+		- File Descriptor 2
+		$ls ABC 2> errorsfile
+		
+	4. Combine standard output (STDOUT) and standard error (STDERR) in same file
+		$ls Documents ABC > output 2>&1 
+		$ls Documents ABCD >> output 2>&1 
+----------------------------------------------------------------------------------------------------------------------------------------
+Permissions:
+	read write execute
+	  4    2	  1  
+	read --> open and read the files and list the content of a dirctory
+	write -->  modify the contents of a file  , remove and rename files stored in the directory
+	execute --> open the directory cd and run scripts 
+	
+	->Changing permissions
+		$chmod 
+	
+	->Changing owner
+		$chown 
+
+	->Create a group
+		$groupadd GROUPNAME
+	
+	->View the user groups
+		$groups USERNAME 
+
+	->Delete a group
+		$groupdel GROUPNAME
+
+	->Delete a user grom a group 
+		$gpasswd -d USER GROUPNAME	
+
+	->Change the name of a group
+		$groupmod -n OLDNAME  NEWNAME
+
+	->Change the primary group of a user
+		$usermod -g GROUPNAME USERNAME
+		
+	->Append a second group to a user
+		$usermod -aG GROUPNAME USERNAME
+
+	->View user and group IDs
+		$id USERNAME
+	
+	-> View the members of a group
+		$lid -g GROUPNAME
+		
+	->Change Group of a File
+		$chgrp 
+		
+	->Change Group of dirctory
+		$newgrp CLASSNAME -  // change the group owner of the created files (new files) despit the user who create it
+		$chown -R USERNAME:CLASSNAME dirctory|file  // change a permission of existed file or dirctory recurively
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	-> Set-UID
+		- Effects on files only it has not effect on directories.
+		- when an executable is launched it does not run with the privileges of the user who launched it but with that of the file owner instead.
+		
+		$chmod 4770 myfile	||	$chmod u+s myfile
+
+		Example:
+			$ls -l /bin/passwd
+				-rwsr-xr-x. 1 root root 27768 Feb 11  2017 /bin/passwd
+			
+			The setuid bit is represented by an s in place of the x of the executable bit.
+			The s implies that the executable bit is set otherwise you would see a capital S.
+			The setuid and setgid bits have no effect if the executable bit is not set, the setuid bit has no effect on directories.-
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	-> Set-GID
+		- Effect on both files and directories. 
+		- In the first case, the file which has the setgid bit set, when executed, instead of running with the privileges of the group of the
+		   user who started it, runs with those of the group which owns the file: in other words, the group ID of the process will be the same
+		   of that of the file.
+		
+		- When used on a directory, instead, the setgid bit alters the standard behavior so that the group of the files created inside 
+		   said directory, will not be that of the user who created them, but that of the parent directory itself. 
+		   This is often used to ease the sharing of files.
+		   (files will be modifiable by all the users that are part of said group). 
+		
+		$chmod 2770 dirctory	||	$chmod g+s directory (relative mode)
+		Example:
+			$ls -ld test
+				drwxrwsr-x. 2 egdoc egdoc 4096 Nov  1 17:25 test
+		
+		Usecase: For Collaborative Directories (shared directories)
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	->Sticky bit
+		https://linuxconfig.org/how-to-use-special-permissions-the-setuid-setgid-and-sticky-bits
+		- It has no effect on files, it used on a directory.
+		- All the files in that directory can be removed only by their owners or the owner of the directory that contain these files.
+		
+		Example:
+			A typical case in which it is used, involves the /tmp directory. Typically this directory is writable by 
+			 all users on the system, so to make impossible for one user to delete the files of another one,
+			 the sticky bit is set
+			
+			$ls -ld /tmp
+				drwxrwxrwt. 14 root root 300 Nov  1 16:48 /tmp
+				In this case the owner, the group, and all other users, have full permissions on the directory 
+				(read, write and execute). The sticky bit is identifiable by a t which is reported where normally 
+				the executable x bit is shown, in the "other" section. Again, a lowercase t implies that the 
+				executable bit is also present, otherwise you would see a capital T.
+		
+		$chmod 1755 dirctory	||	$chmod +t directory 
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	-> umask 
+		- The umask is a shell setting that subtracts the umask from the default permissions.
+		- Default permissions for file are 666
+		- Default permissions for directory are 777
+		$umask 0224
+			0 -> 6-0 = 6 (rw)
+			2 -> 6-2 = 4 (w)
+			4 -> 6-4 = 2 (r)
+			6 -> 6-6 = 0 (-)
+----------------------------------------------------------------------------------------------------------------------------------------
+Access Control Lists (ACLs):
+	->Show the current settings
+		$getfacl FILENAME|DIRECTORY	
+
+	->Set ACL on Directory
+		$setfacl -R -m g:GROUPNAME:rwx DIRECTORY
+		setfacl -R -m g:admins:rwx nti/
+		
+		$setfacl -R -m u:USERNAME:rwx DIRECTORY
+		setfacl -R -m u:ali:rwx nti/
+	
+	->Set ACL on File
+		$setfacl -m u:USERNAME:r-x FILENAME
+		 setfacl -m u:mahmoud:rx declarations.h
+	
+	->Set Default ACL on Directory
+		$setfacl -m d:g:GROUPNAME:rwx DIRECTORY		#Default ACL: which makes ACL is set by default on all files created insdie that directory	
+	
+	->Remove specfic ACL 
+		$setfacl -R -x user:apache /local_repo/
+
+	->Remove all ACLs on a directory
+		$setfacl -b -R sales/
+	
+
+	setfacl -m u:alice:rw file001
+	setfacl -m g:apache:rwx file001
+	setfacl -m m:r file001   (Set mask)
+	setfacl -m m:rwx file001
+----------------------------------------------------------------------------------------------------------------------------------------
+SSH: 
+	Install and configure ssh
+		$sudo yum install openssh-server openssh-clients
+		$sudo systemctl start sshd
+		$sudo vim /etc/ssh/sshd_config 						
+			--> remove  #port 22 , PermitRootLogin no
+		$sudo systemctl enable sshd
+		$firewall-cmd --zone=public --permanent --add-service=ssh
+		
+		- Change network options for static ip
+			$sudo nmtui-edit INTERFACE 
+			$sudo nmcli connection down INTERFACE && sudo nmcli connection up INTERFACE
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Setting up ssh key based login
+		1. Creates a public/private key pair for the current user.
+			$ssh-keyegen
+		2. Copies thee public key over to the target server. 
+			$ssh-copy-id SERVER_IP
+		-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
+		3. Allocates space in the bash shell to cache the private key passphrase.
+			$ssh-agent /bin/bash
+		4. Adds the curreent passphrase to the cache.
+			$ssh-add
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+		- Server options are set in /etc/ssh/sshd_config 
+		- Clients options can be set in /etc/ssh/ssh_config
+			- Port 22 
+			- PermitRootLogin
+			- AllowUsers
+			- PubkeyAuthenticatin
+			- PasswordAuthentication 
+			- X11Forwarding
+
+		- To apply new configuration
+			$systemctl restart sshd
+----------------------------------------------------------------------------------------------------------------------------------------
+Archive and Compression:
+	using archive without comperssion:
+		$tar -cvf archive-name.tar dir1 dir2 file1 file2
+		$tar -xvf archive-name.tar
+
+	using archive with gzip comperssion: 
+		$tar -czvf archive-name.tar.gz dir1 dir2 file1 file2 
+		$tar -xzvf archive-name.tar.gz -C /location_of_extraction 					#for extract 
+	
+	using archive with bzip2 comperssion:
+		$tar -cjvf archive-name.tar.bz2 dir1 dir2 file1 file2 
+		$tar -xjvf archive-name.tar.bz2	-C /location_of_extraction					#for extract 
+
+	To show the contents of an archive 
+		$tar -tvf 
+
+	Compression Utilities
+		- gzip is still the most common compression utility.
+		- bzip2 is an alternative utility.
+		- zip is also available and has Windows-compatible syntax.
+		- xz is showing up more often as well.
+---------------------------------------------------------------------------------------------------------------------------------------- 
+System Documentation:
+	$man
+	$mandb --> to update database to reslove  error "user: nothing appropriate."
+	$man -k
+	$apropos
+	$info --apropos=SEARCH_KEY
+	
+	->Location of info docs
+		/usr/share/info	
+
+	->Directory of documantaion for third-party programs
+		/usr/share/doc
+
+	->Update a database for mlocate
+		$updatedb
+
+	->Find files by name	
+		$locate
+
+	->Show the full path of a (shell) command
+		$which COMMAND  
+
+	->Locate the binary, source, and manual page files for a command	
+		$whereis
+
+	->Search for a doc for specific packagename installed by rpm
+		$rpm -qd packagename 
+----------------------------------------------------------------------------------------------------------------------------------------
+Shut down and Reboot Systems:
+	$systemctl poweroff
+	$systemctl reboot
+	$systemctl --help
+	$man systemctl
+----------------------------------------------------------------------------------------------------------------------------------------
+Start, Stop and check Network Service Status:	
+	->List all the different units types
+		$systemctl -t help
+			Available unit types:
+				service
+				socket
+				target
+				device
+				mount
+				automount
+				swap
+				timer
+				path
+				slice
+				scope
+
+	->List of all units that are currently running only (units currently in memory)
+		$systemctl list-units
+
+	->List all the units that are available and the current state of  every unit file (List installed unit files)
+		$systemctl list-unit-files
+
+	->List specific unit type (service) 
+		$systemctl list-unit-files --type=UNIT-TYPE | grep name.service
+		 systemctl list-unit-files --type=service | grep sshd.service
+	
+	->Check status of a service
+		$systemctl status service_name.service 
+		$systemctl is-enabled service_name.service
+
+	->Show backing files of one or more units
+		$systemctl cat service_name.service
+		 systemctl cat sshd.service
+
+	->Show the current target
+		$systemctl get-default
+		
+	->Start, stop a service  ( for running time only not survive from boot )
+		$systemctl start service_name.service
+		$systemctl stop service_name.service
+		
+	->For permanent ( survive from boot )
+		$systemctl enable service_name.service
+		
+	->Disable a service
+		$systemctl disable service_name.service 
+
+	->Edit a service
+		1. edit the service 
+			$systemctl edit name.service
+			 systemctl edit vsftp.service 
+			 	[Service]
+				Restart=always
+				RestartSec=60s
+		2. reload to use the updated configuration
+			$systemctl daemon-reload
+		3.restart the service
+			$systemctl restart name.service
+			 systemctl restart vsftp.service
+		4. if we kill the service it will restart after 60s
+			$killall SERVICE-NAME
+			 killall vsftp 
+			$systemctl status vsftp.service    # you will notice that the service is down but it will come up again after 60s
+		
+	Gain more infrotmation : journalctl -xe
+----------------------------------------------------------------------------------------------------------------------------------------
+Logging(systemd & systemd-journald):
+	Rsyslog:
+		Configuring Rsyslog Logging
+			- Rsyslog needs the resyslog service to be running 
+			- The main configuration file is /etc/rsyslog.conf 
+			- Snap-in files can be placed in /etc/rsyslog.d/
+			- Each logger line contains three items 
+				-> facility: the specific facility that the log is created for 
+				-> severity: the severity from which should be logged 
+				-> destination: the file or other destination the log should be written to 
+			- Log files normally are in /var/log
+			- use the logger command to write messages to rsyslog manually.
+		
+		-> Configuration file: /etc/rsyslog.conf
+		$man 5 rsyslog
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	systemd-journald:
+		- It's the log service that is a part of systemd.
+		- It integrates well with systemctl status <unit> output.
+		- Alternatively, the journalctl command can be used to read log entires in journal.
+		- Messages are logged also to rsyslogd, using the rsyslogd imjournal module.
+		- To make the journal persistent, use mkdir /var/log/journal then restart the service.
+		- The journal is written to /run/log/journal, which is automatically cleared on systen reboot, edit /etc/systemd/journald.conf 
+		   to make journal persistent across reboots, Set the storage parameter in this file to the appropriate value
+		   	-> persistent: will store the journal in the /var/log/journal directory, this directory will be created if it doesn't exist.
+			-> volatile: stores the journal only in the /run/log/journal.
+			-> auto: will store the journal in /var/log/journal if there directroy exists, and in /run/log/journal if no /var/log/journal exists.
+		
+		- Built-in log rotation for the jouranl runs monthly.
+		- The journal cannot grow beyond 10% of the size of the file system it is on.
+		- The jouranl will also make sure at least 15% of its file system will remain available as free space.
+
+		->Configuration file: /etc/systemd/journald.conf 
+		->Show the status of the service
+			$systemctl status systemd-journald
+			$systemctl status systemd-journald -l --> display the size
+		
+		$journalctl
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Logrotate:
+		- Logrotate is started through cron.daily to ensure that log files don't grow too big. 
+		- Main configuration is in /etc/logrotate.conf, snap-in files can be provided through /etc/logrotate.d/
+----------------------------------------------------------------------------------------------------------------------------------------
+Configure systems to boot into a specific target automatically:
+	->show the current target
+		$systemctl get-default
+	->Change the target
+		$systemctl set-default graphical.target
+	
+	->For more infromation about the targets
+		https://www.computernetworkingnotes.com/linux-tutorials/systemd-target-units-explained.html
+----------------------------------------------------------------------------------------------------------------------------------------
+Using Cockpit:
+	$systemctl enable --now cockpit.socket
+	
+	PORT:9090
+		server
+----------------------------------------------------------------------------------------------------------------------------------------
+Install Red Hat Enterprise Linux Automatically Using Kickstart:
+	->GUI to create kikstart
+		$yum install system-config-kickstart #only for RHEL7
+----------------------------------------------------------------------------------------------------------------------------------------
+Configure Time:
+	->hwclock:		set hardware clock and synchronize  with system time.
+
+	->date: 		set current time and display format.
+
+	->tzselect:		allows to select the current time zone.
+
+	->timedatectl:	new utility to manage all aspects of time.
+		$timedatectl status
+		$timedatectl show
+		$timedatectl list-timezones | grep -i cairo
+		$timedatectl set-timezone Africa/Cairo		#setting timezone to Cairo
+		$timedatectl set-ntp yes
+
+	->chrony
+		$yum isntall chrony 
+		$systemctl enable --now chrond.service
+
+		config file:	/etc/chrony.conf
+
+	Note: 
+		- Chrony service is configured to get the right time from the Internet.
+		- It can be confurgured by making simple modification to the /etc/chrony.conf configuration file.
+		- By default the chrony.conf configuration file contains the line pool pool 2.rhel.pool.ntp.org iburst, if you comment out this 
+		   line by putting a pound sign in front of it and add the line server yourtimeserver.example.com, your time server will be used 
+		   instead of the servers in pool.ntp.org
+----------------------------------------------------------------------------------------------------------------------------------------
+Configure a Physical Machine to Host Virtual Guests:
+	-> install pagkages
+		$yum install virt-manager qemu-kvm qemu-img
+		$yum install libvirt libvirt-python python-virtinst libvirt-client
+----------------------------------------------------------------------------------------------------------------------------------------
+Securely Copy Files Between Remote Systems:
+	->Secure Copy:
+		$scp file1_name file2_name user_name@server:/path/to/dir	#copy files to the server
+		$scp -r user_name@server:/tmp/files .   					#copy the content of the directory to the current location
+
+	->Secure FTP:
+		- offers an FTP client intereface to securely transfer files using SSH
+		- Configuration file: /etc/vsftpd/vsftpd.conf
+
+		Configure ftp server:
+			yum install vsftpd
+			$systemctl start vsftpd
+			$systemctl enable vsftpd
+			$firewall-cmd --zone=public --permanent --add-port=21/tcp
+			$firewall-cmd --zone=public --permanent --add-service=ftp
+			$firewall-cmd --reload
+			$firewall-cmd --list-all
+
+		Login to ther server:
+			$sftp user_name@server
+			$put /my/file 					#to upload a file 
+			$get /your/file 				#to download a file to the current directory
+			$exit 							#to close an sftp session 
+----------------------------------------------------------------------------------------------------------------------------------------
+Securely Synchrinize Files Between Remote Systems:
+	- rsync is using SSH to synchronize files.
+	- If the source and target files already exists, rsync will only synchronize theri differences.
+	- The rsync command can be used with many options 
+		-r --> will recursibeely synchronize the entire directory tree.
+		-l --> synchronizes symbolic links 
+		-p --> preserves symbolic links
+		-n --> will do a dry run befor actual synchronizing
+		-a --> uses archive mode,
+		-A --> uses archive mode and also synchronizes ACLs
+		-X --> will synchronize SELinux context as well
+
+	$rsync	-ar root@linuxzoo.net:/directory/ /dirctory/
+	 rsync -ar root@linuxzoo.net:/home/alice/ /tmp/alice/
+----------------------------------------------------------------------------------------------------------------------------------------
+Configure Local storage:
+	REF:https://opensource.com/business/16/9/linux-users-guide-lvm
+
+	Linux Storage Options:
+		1. paritions: the classical solution , use in all cases
+			- Use to allocate dedicated storage to specific types ot data. 
+		2. LVM Logical Volumes
+			- Used at default installation of RHEL. 
+			- Adds flecibility to storage (resize, snapshots and more).
+		3. Stratis 
+			- Next generation Volume Managing Filesystem that uses thin provisioning by default.
+			- Implemented in user space, which makes API access possible.
+		4. Virtual Data Optimizer
+			- Focused on storing files in the most efficient way. 
+			- Manages deduplicated and compressed storage pools.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Understanding GPT and MBR Partions:
+		1. Master Boot Record (MBR) is part of the 1981 PC specification.
+			- 512 bytes to store boot infromation
+			- 64 bytes to store partitions. 
+			- Place for 4 partions only with a max size of 2 TiB. 
+			- To use more partitions, extented and logical partions must be used.
+		2. 	GUID Partion Table is a newer partition table( 2010)
+			- More space to store partitions.
+			- Used to overcome MBR limitations. 
+			- 128 partions max.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Some important Utilities:
+		1. $df -h
+		3. $cat /proc/partitions  -> view all the hard drives
+		4. $lsblk
+		5. $blkid
+		6. $fdisk -l
+		7. $parted /dev/sda
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Creating Partitioning Using parted utility(GPT): 
+		- while creating a partiton, you do NOT automatically create a file system.
+		- Parted is the default utility in RHEL8 
+		- Alternatively, use fdisk to work with MBR and gdisk to use GUID partitions.
+
+		1. $parted /dev/sdb
+		2. print 				--> will  show if there is a current partition table.
+		3. mklabel msdos|gpt	--> MBR or GPT 
+		4. mkpart part-type name fs-type stat end	
+			- part-type: applies to MBR only and sets primary, logical or extended partition.
+			- name: arbitrary name, required for GPT.
+			- fs-type: dose NOT modify the filesystem, but sets some irrelevant file system  dependent metadata.
+			- start end: specify start and end, counting from the beginning of the disk.
+			example:
+				$mkpart primary 1024MiB 2048MiB
+		5. print 				-->	to verify creation of the new partition.
+		6. quit 				--> to exit the parted shell. 
+		7. $udevadm settle 		--> to ensure that the new partition device is created.
+		8. cat /proc/partions	--> to verify the creation of the partition or use lsblk
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Creating Partitioning Using fdisk utility (MBR): 
+		1. $fdisk /dev/sdb 
+		2. n 		(add a new partition)
+		3. p 		(partition type primary) 
+		4. enter	(Partition number for using the default)
+		5. enter	(First sector for using the default)
+		6. +SIZEG	(choose the size of the partition)
+		7. p 		(print the partition table)
+		8. w    	(write table to disk and exit)
+		
+		use if there is an error message after writting: 
+			$partprobe 		# inform the OS of partition table changes (all recent disks are updated to the kernel partition table)
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Understanding File System Differences:
+		- XFS is the default file system 
+			-> Fast and scalable.
+			-> Uses CoW (Copy on Write) to guarantee data integrity.
+			-> Size can be increased, not decreased.
+		
+		- Ext4 was default in RHEL 6 and still used
+			-> Backward compatible to Ext2.
+			-> Uses Journal to guarantee data integrity.
+			-> Size can be increased and decreased.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Mounting Partition Though fstab:
+		- /etc/fstab is the main configuration file to persistentely mount partitions.
+		- /etc/fstab content is used to generate systemd mounts by the systemd-fstab-generator utility.
+		- To update systemd, make sure to use systemctl daemon-reload after editing /etc/fstab.
+		$vim /etc/fstab
+			/dev/nvme0n1p1	/xfs	xfs	defaults	0	0
+		$systemctl daemon-reload		#to update systemd unit files
+		$mount -a
+
+		Using Persistent Naming Atrributes:
+			- In datacenter environments, block device names may change so there is different solutions for persistent naming 
+				-> UUID: a UUID is automatically generated for each device taht contains a file system or anything similar. 
+				-> Label: while creating the file system, the option -L can be used to set an arbitrary name that can be used for 
+				           mounting the file system. 
+				-> Unique device names are created in /dev/disk.
+
+			$blkid 		#To get UUID for every device on the system.
+			$tune2fs -L Volume_label /dev/device-name 		#only for file system ext2 ext3 ext4
+			 tune2fs -L articles /dev/nvme0n1p1				#to verify: $blkid 
+
+			$vim /etc/fstab
+				LABEL=articles	/xfs	xfs	defaults	0	0
+			$mount -a
+			entry  
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-	
+	Mounting Partition Using Systemd Mounts	
+		- Mounts can be created using systemd .mount files.
+		- Using .mount files allows you to be more specific in defining dependencies.
+
+		$cp /usr/lib/systemd/system/tmp.mount /etc/systemd/system/articles.mount
+		$vim /etc/systemd/system/articles.mount
+			[Mount]
+			What=LABEL=articles
+			Where=/articles
+			Type=ext4
+			Options=defaults
+		$systemctl daemon-reload
+		$systemctl status articles.mount
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Managing XFS File Systems:
+		- The xfsdump utility can be used for creating of XFS formatted devices and considers specific XFS attributes
+			-> xfsdump only works on a complete XFS device. 
+			-> xfsdump can make full backups (-l 0) or different levels of incremental backups.
+			-> xfsdump -l 0 -f /backupfiles/data.xfsdump/data creates a full backup of the contents of the /data directory.
+		- The xfsresotre command is used to restore a backup that was made with xfsdump	
+			-> xfsrestore 0f /bakupfiles/data,xfsdump /data 
+		- The xfsrepair command can be manually strated to repair broken XFS file systems.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Creating a Swap Parition Using parted:
+		1. $parted /dev/nvme0n2
+		2. print 
+		3. mkpart enter 
+		4. Partition name?	[]?	swap 
+		5. File system type? [ext2]? linux-swap 
+		6. Start?	1GiB 
+		7. End?	2GiB
+		8. exit
+		9. $udevadm settle
+		10. $mkswap /dev/nvme0n2p2	 --> foramted with the swap file system	 
+		11. $free -m 				 --> verify the Sawp size 
+		12. $swapon /dev/nvme0n2p2	 
+		13. $vim /etc/fstab
+				/dev/nvme0n2p2	swap	swap	defaults	0 0
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Creating and Mounting File Systems:
+		1. Create a file system on a logical volume
+			$mkfs.ext4 /path/to/v   ==> ex /dev/mapper/sdb1 
+		2. Mount a file system
+			$mount /path/ot/lv /path/to/dir
+		3. List mounted file systems 
+			$df -h 			|| 		$mount | grep '^/'
+		4. Add mount information to /etc/fstab for boot persistence
+			$UUID=UUID_NUMBER /mount/point	fs_type	defaults	0 0 
+			note: get UUID_NUMBER using  ==> blkid
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	
+		wipefs --all --force /dev/nvme0n3
+----------------------------------------------------------------------------------------------------------------------------------------
+LVM Logical Volumes:
+	- Used during default installation of RHEL 
+	- Adds flexibility to storage (resize, snapshots, and more)
+
+	Create a LVM Partition:
+		1. Use fdisk fo maniputate partition table
+			$fdisk /dev/device_name
+		2. Use p to print the partition table and o to create a DOS(MBR) partition table
+		3. Use n to create a new partition
+		4. Set it as a primary partition using p and acept the defaults for partition numver first sector and last sector
+		5. List paritition types using l change the partition type to Linux LVM(8e) using table
+		6. Write the table to disk using w
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Create a LVM Logical Volume:
+		1. Create physical volume
+			$pvcreate /dev/device_name
+			 pvcreate /dev/nvme0n1p4
+		2. List physical volumes
+			$pvs
+		3. Create,Extend volume group 
+			$vgcreate VG_NAME /dev/device_name		---> creating a volume group
+			 vgcreate vgdata /dev/nvme0n1p4
+			$vgextend VG_NAME /dev/device_name		---> extended existing volume group
+			 vgextend vgdata /dev/nvme0n1p5
+		4. list volume group
+			$vgs
+		5. Create,Extend logical volumes
+			$lvcreate -L SIZE -n LV_NAME VG_NAME
+			 lvcreate -n lvdata -L 812M vgdata
+			$lvextend -r -l 100%FREE /dev/VG_NAME/LV_NAME  --> Extend File System
+		6. mkfs.ext4 /dev/vgdata/lvdata
+		7. Mounting 
+			$vim /etc/fstab
+				/dev/vgdata/lvdata		/mounts/lvm1	ext4	defaults	0 0 
+		8. Mounting the logical volume
+			$mount -a
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Delete a Logical Volume, Volume Group and Physical Volume:
+		1. Delete logical volume
+			$lvremove vol_group/new_lv
+		2. Delete volume group
+			$vgremove vol_group
+		3. Delete physical volume
+			$pvremove /dev/device_name
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Extend Logical Volumes:
+		1. Extend underlying logical volume:
+			$lvextend -L +500M /dev/vol_grp/log_vol			# if you use the option -r will also expand the filesystem
+		2. Unmount filesystem:                              # step 2,3 can dispense with them
+			$umount /path/to/mount/
+		3. Run file system check:
+			$e2fsck -ff /dev/vol_grp/log_vol				# only for Ext3,Ext4
+		4. Expand file system :
+			$resize2fs /dev/vol_group/log_vol   			# only for extend Ext3,Ext4 filesystems
+			$xfs_growfs /dev/mapper/vgexam-lvexam			# only for extend xfs filesystem
+		5. List mounted file systems:
+			$df -h
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Add Swap using LVM
+		1. Display the amount of free and used Memory in the system
+			$free -h
+		2. Display statistics of virtual memory.	
+			$vmstat -S M
+		3. Create a swap partition
+			-> create partiton LVM (code:8e)
+				$fdisk /dev/sdb
+			-> create Physical Volume(PV) , Volume Group(VG) , Local Volume (LV)
+				$pvcreate /dev/sdb2 							==> to verify: pvdisplay 
+				$vgcreate SWAP-GROUP /dev/sdb2 		     		==> to verify: lvdisplay
+				$lvcreate -n swap -l 100%FREE SWAP-GROUP
+				$mkswap /dev/SWAP-GROUP/swap                 	==> to verify: free -m
+----------------------------------------------------------------------------------------------------------------------------------------
+Stratis:
+	- Stratis is a volume management file system and is Redhat's answer to btrfs and ZES
+		-> On top of Stratis a regular file system is needed: XFS
+	
+	- It is built on top of any block device, including LVM devices.
+		-> LUKS
+		-> LVM logical volumes
+		-> MD RAID
+		-> DM Multipath
+		-> iSCSI
+		-> HDDs and SSDs
+		-> NVMe devices
+	
+	- It offers advanced feature
+		-> Thin provisioning
+		-> Snapshots 
+		-> Cache tier 
+		-> Programmatic API 
+		-> Monitoring and Repair
+	
+	- The Stratis pool is created from one or more storage devices (blockdev)
+		-> Stratis creates a /dev/statis/my-pool directory for each pool.
+		-> This directory contains links to devices that represent the file systems in the pool 
+		-> Block devices in a poll may not be thin provisioned
+	
+	- The (XFS) file system is put in a volume on top of the pool and is an integrated part of it 
+		-> Each pool can contain one or more file systems. 
+		-> File systems are thin provisioned and do not have a fixed size. 
+		-> The thin volume which is an integrated part of the file system automatically grows as more data is added to the file system.
+	
+	- Stratis Snapshots:
+		-> A snapshot is an individual file system that can be mounted. 
+		-> After creation, snapshots can be modified.
+		-> A snapshot and its origin are not linked: the snapshotted file system can live longer that file sytem it was created from.
+		-> Each snapshot needs at least half a Gigiabyte of backing storage for the XFS log.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Configuration:
+		->Install and enable the service
+			$yum install stratis-cli stratisd
+			$systemctl enable --now stratisd 
+		________________________________________________________________________________________________________________
+		->Creating pool 
+			$stratis pool create mypool /dev/nvme0n2 
+				-> Add new block devices later using stratis blockdev add-data 
+				-> Partitions are NOT supported 
+				-> Note that the block device must be at least 1GiB
+		________________________________________________________________________________________________________________
+		->Creating an XFS file system!
+			$stratis fs create mypool myfs1 	
+		________________________________________________________________________________________________________________
+		->Verify
+			$stratis pool list 					#List all pools on the system.
+			$stratis blockdev list mypool		#List all blockdevs that make up the specified pool, or all pools, if no pool name is given.
+			$stratis filesystem list 			#List all filesystems that exist in all pools
+			$stratis filesystem list mypool		#List all file systems in a specific pool	 
+		________________________________________________________________________________________________________________	
+		->Mounting
+			Temporary mount:
+				$mkdir /myfs1
+				$mount /dev/stratis/mypool/myfs1/myfs1
+			
+			Persistent mount:
+				$blkid 								#To find the stratis volume UUID 
+				Mount by UUID in /etc/fstab
+				 $vim /etc/fstab	
+					UUID=02c068bd-4d0b-45d3-b1d7-d1494f911dc7   /mounts/myfs1  xfs defaults,x-systemd.requires=stratisd.service 0 0
+				$reboot								#To verify that every thing is working correctly
+				$mount | grep myfs1					#To verify that the volume is mounted 
+		________________________________________________________________________________________________________________
+		->Extending a Stratis Pool
+			$stratis pool add-dat mypool /dev/nvme0n3
+		________________________________________________________________________________________________________________
+		->Creaing a snapshot
+			$stratis fs snapshot mypool myfs1 myfs1-snapshot
+		________________________________________________________________________________________________________________
+		->Revert the original volume to the state in the snapshot
+			1. $umount /myfs1
+			2. $stratis fs destroy mypool myfs1 
+			3. $stratis fs snapshot mypool myfs1-snapshot myfs1
+			Note:
+				That approache wouldn't work on LVM!
+		________________________________________________________________________________________________________________
+		->Delete a snapshot
+			$stratis filesystem destroy mypool mysnapshot
+		
+		->Delete a file system
+			$stratis filesystem destroy my mypool myfs1 
+
+		->Delete a pool
+			- When there are no more file systems in a pool you can destory it 
+			$stratis pool destroy mypool
+----------------------------------------------------------------------------------------------------------------------------------------
+Virtual Data Optimizer (VDO):
+	- Focused on storing files in the most efficient way.
+	- It is used as a separate volume manager on top of which file system will be created.
+	- provides thin-provisioned storage
+		-> Use a logical size 10 times the physcial size for VMs and containers.
+		-> Use a logical size 3 times the physcial size for object storage.
+	- Used in Cloud/Container environments.
+	- It manages deduplicated and compressed storage pools in the RHEL8.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Configuration: 
+		- Ensure that underlying block devices are > 4GiB 
+		1. Install required packages
+			$yum install -y kmod-kvdo vdo
+		2. Create a vdo volume
+			$vdo create --name=vdo_vol --device=/dev/devName --vdoLogicalSize=vol_size --write
+			 vdo create --name=vdo1 --device=/dev/nvme0n3 --vdoLogicalSize=10T 
+		3. View information on vdo volumes:
+			$vodstats --hu
+		4. Make file system
+			$mkfs.xfs -K /dev/mapper/vdo1
+		5. $udevadm settle	--> will wait for the system to register the new device name.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Mounting  Partition Though fstab:
+		$vim /etc/fstab
+			include
+			/dev/mapper/vdo1	/vdo1	xfs 	defaults,x-systemd.requires=vdo.service	0 0
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Mounting Partition Using Systemd Mounts:
+		1. $cp /usr/share/doc/vdo/examples/systemd/VDO.mount.example /etc/systemd/system/mounts-vdo1.mount
+		2. $vim /etc/systemd/system/mounts-vdo1.mount
+			[Unit]
+			Description = Mount filesystem that lives on VDO
+			name = VDO.mount
+			Requires = vdo.service systemd-remount-fs.service
+			After = multi-user.target
+			Conflicts = umount.target
+			[Mount]
+			What = /dev/mapper/vdo1
+			Where = /mounts/vdo1
+			Type = xfs
+			Options = discard
+			[Install]
+			WantedBy = multi-user.targetmount the vdo1
+
+		3. mount the vdo1
+			$systemctl enable --now vdo1.mount
+		4. show status about vdo1
+			$vdostats --human-readable
+----------------------------------------------------------------------------------------------------------------------------------------
+LUKS Encrypted Volumes:
+	1.Use parted or fdisk to create a partiton
+	2. cryptsetup luksFormat will format the LUKS device
+	3. cryptsetup luksOpen will open it and create a device mapper name 
+	4. Mount the reesulting device maaper
+	5. To auotmate the cryptsetup luksOpen, use /etc/crypttab 
+	6. To auotmate mounting the volume, use /etc/fstab
+
+	Configuration
+		1. Creating a partiton
+			$parted /dev/nvme0n4
+				mklabel gpt
+				mkpart
+					Partition name?  []? luks1
+					File system type?  [ext2]?
+					Start? 
+					End? 2GiB
+					print 
+					quit
+		2. Cryptsetup luksFormat			
+			$cryptsetup luksFormat /dev/nvme0n4p1 
+				Are you sure? (Type uppsercase yes): YES
+				Enter passphrase for /dev/nvme0n4p1 :
+				Verify passphrase:
+		3. Cryptsetup luksOpen
+			$cryptsetup luksOpen /dev/nvme0n4p1  secret
+				Enter passphrase for /dev/nvme0n4p1:
+			$ls -l /dev/mapper/secret  ==> to verify
+		4. Creating the file system and mounting 
+			$mkfs.xfs /dev/mapper/secret
+			$mkdir /secret 
+			$vim /etc/fstab
+				/dev/mapper/secret	/secret		xfs		defaults 	0 0 
+		5. Add configuration file
+			$man crypttab
+			$vim /etc/crypttab
+				secret	/dev/nvme0n4p1	none 
+			$reboot	
+----------------------------------------------------------------------------------------------------------------------------------------
+Kernel Modules:	
+	- list all loaded kernel modules
+		$lsmod
+	- load a module 
+		$modprobe vfa
+	- unload a module
+		$modprobe -r vfat
+	- show module parameters
+		$modinfo MODULE-NAME
+	- to load specify kernal module parameters, edit /etc/modprobe.conf or the files in /etc/modprobe.d then reload the module
+----------------------------------------------------------------------------------------------------------------------------------------
+Grub:
+	- To edit Grub2 parameters edit the configuration file in /etc/default/grub
+	- After writing changes, compile changes to grub.cfg 
+		$grub2-mkconfig -o /boot/grub2/grub.cfg					#BIOS
+		$grub2-mkconfig -o /boot/efi/EFI/rehat/grub.cfg			#EFI 
+
+	-> To checking type 
+		$mount | grep '^/' | grep -i efi
+
+	boot messages should be present there (not silenced).
+		$vim /etc/default/grub
+			remove 
+				rhgb quiet 
+		$grub2-mkconfig -o /boot/grub2/grub.cfg
+----------------------------------------------------------------------------------------------------------------------------------------
+Systemd Targets 
+	- A systemd target is a group of unit files.
+	- Some targets are isolatable, which means that they define the final state a system is starting in 
+		-> emergency.target		--> for troubleshooting with the minimun services
+		-> rescue.target		--> for troubleshooting	 "press e then add systemd.unit=rescue.target"
+		-> multi-user.target 	--> all services are running but you don't have a GUI 
+		-> graphical.target		--> all services are running with GUI 
+	- When enabling a unit, it is added to specific target.
+		
+	$systemctl list-dependencies
+	$systemctl list-units
+		
+	->To see the current default target 
+		$systemctl get-default		
+		
+	->To set the default to different target		
+		$systemctl set-default TARGET-NAME	
+
+	->To change between targets on running system
+		$systemctl isolate xxx.target		
+		 systemctl isolate emeregency.target
+		
+	->To get back to the graphical target 
+		$systemctl start graphical.target
+----------------------------------------------------------------------------------------------------------------------------------------
+Change the root Password:
+	1. Edit the kernel boot parameters by pressing e
+	2. Go to the end of the "linux16" line by pressing Ctrl+e removing ro crash and add rd.break enforcing=0
+	3. Start the system by prssing Ctrl+x
+	4. Remount the root of the system:
+		$mount -o remount,rw /sysroot
+	5. Switch to /sysroot
+		$chroot /sysroot
+	6. Reset the password 
+		$passwd root		|| 		echo password | passwd --stdin root
+	7. Enable SElinux relabeling
+		$touch /.autorelabel
+	8. Exit the shell 
+		$exit 	(Ctrl+D)
+		$exit	(Ctrl+D)
+----------------------------------------------------------------------------------------------------------------------------------------
+Working with Network File Systems (NFS):
+	Server:
+		1. Check the status of nfs-server service
+			$systemctl status nfs-server
+		2. Start and enable the service
+			$systemctl enable --now nfs-server
+		3. Make shared directory 
+			$mkdir /data
+		4. Edit configuration file /etc/exports
+			$vim /etc/exports
+				add ==>	/data *(rw,no_root_squash)
+		5. Restart the service
+			$systemctl restart nfs-server
+		6. Allow nfs service from the firewall 
+			$firewall-cmd --add-service nfs	--permanent
+			$firewall-cmd --add-service mountd	--permanent
+			$firewall-cmd --add-service=rpc-bind --permanent
+			$firewall-cmd --reload
+		7. Verify
+			$showmount -e localhost
+			$cat /var/lib/nfs/etab
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Client:
+		1. Install required packages
+			$yum install nfs-utils
+		2. Start required services
+			$systemctl enable --now rpcbind
+		3. Show file system exports on the client
+			$showmount -e SERVER_IP
+		4. Mount a newtwork file system
+			$mount -t nfs4 -o rw SERVER_IP:/server/dir	/client/dir		#running time
+			$vim /etc/fstab												#persisent
+				add ==> SERVER_IP:/server/dir	/client/dir-nfs	nfs	_netdev	0 0 
+		
+
+		Using Automount:
+			1. Install the package called autofs
+				$yum install autofs
+			2. Start and enable autofs service
+				$systemctl enable --now autofs
+			3. Edit the configure file /etc/auto.master
+				$vim /etc/auto.master
+					add ==> /files  /etc/auto.files
+			4. Create the configuration file /etc/auto.files
+					add ==>	data -rw	SERVER_IP:/server/dir
+					note: data is the directory will be created
+			5. Create the directory
+				$mkdir /files
+			6. Restart the service
+				$systemctl restart autofs
+----------------------------------------------------------------------------------------------------------------------------------------
+Samba Shares:
+	Server:
+		1. Install the Samba server package 
+			$yum install samba
+		2. Create directory to share
+			$mkdir /samba
+		3. Create a local Linux user 
+			$useradd samba
+		3. Set Linux Permissions
+			$chown samba /samba
+			$chmod 770 /samba 
+		4. Use smbpasswd -a to add a Samba user account 
+			$smbpasswd -a samba
+		5. Enable the share in /etc/samab/smb.conf 
+			$vim /etc/samab/smb.conf 
+				[samba]
+					comment = samba share 
+					path = /samba 
+					write list = samba    #user or group  allowed to write to the share
+		6. Start the service
+			$systemctl enable --now smb
+		7. Configure the firewall
+			$firewall-cmd --add-service=samba --permanent
+			$firewall-cmd --reload
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Client:
+		1. Install the cifs-utils and samba-client RPM packages
+		 	$yum groups install "Network File System Client"
+		2. Discover shares 
+			$ smbclient -L //sambahost 
+		3. Mount the share	
+			$mount -o username=sambauser //sambaserver/share/ /somewhere 
+			 mount -o username=samba //192.168.1.10/samba /mnt
+		4. Make mount persisent through /etc/fstab 
+			//192.168.1.10/samba	/samba	cifs	netdev,username=samba,password=password 	0 0 
+----------------------------------------------------------------------------------------------------------------------------------------
+Start and Enable Service atd:
+	1. view yum repositories
+		$ls -a /etc/yum.repos.d 
+	2. Install packages 
+		$yum install at
+	3. start a service
+		$systemctl start atd
+	4. Enable a service
+		$systemctl enable atd
+----------------------------------------------------------------------------------------------------------------------------------------
+Managing Shell Jobs:
+	->Start a job in background
+		$command &
+	
+	->Move a job to the background
+		1. use Ctrl-Z 
+		2. type $bg to move it to the background
+	
+	->Overview of running jobs
+		$jobs 
+	
+	->Move the last job back to the foreground
+		$fg [n] 
+----------------------------------------------------------------------------------------------------------------------------------------
+View Processes and Resource Utilization:
+	->Print a list of active process:
+		$ps 									--> shows an overview of current processes.
+		$ps aux | less							--> shows an overview of all provesses.
+		$ps aux | grep '\<dd'
+		$ps -fax 								--> shows hierarchical relations between processes.
+		$ps -fU USER_NAME 						--> shows all processes owned by that user.
+		$ps -f --forest -C PROCESS				--> shows a process tree for a specific process.
+		$ps L									--> shows format specifiers.
+		$ps -eo pod,ppid,user,cmd 				--> uses some of these specifiers to show a list of processes.
+
+		$pgrep PROCESS_NAME -l 					--> 
+		$pgrep -u USER_NAME -l PROGRAM_NAME 	--> list all the user porcess for specific programs
+		$pkill PROCESS_NAME => ex: pkill httpd
+		
+	->View infromation about the cpu
+		$lscpu
+	
+	->View real0time list of processes and resource utilization:
+		$top
+			f --> to show and select from available display fields.
+			M --> to filter on memory.
+			W --> to save new display settings.	
+			K --> to send kill signal	
+			r --> renice
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	->Terminat a running process:
+		$man 7 signal	
+		$kill -l 		--> show all available signals
+		$kill -15		--> SIGTERM (Termination signal) Default signal
+		$kill -9		--> SIGKILL (Kill signal)
+		
+		$pkill 
+		$killall NAME	--> Kill based on process name
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	->Managing Priorities and Niceness 
+		- Nice values range from -20 up to 19.
+		- Negative nice values indicate an increased priority, a positive nice value indicates decreased priority.
+		- Nice value -20 means highest priority (0).
+		- Users can set their processes to a lower priority, to increase priorities you need root access.
+
+		PR = 20 + NI
+		
+		$nice -n NICE-VALUE COMMAND
+		 nice -n -1 dd if=/dev/zero of=/dev/null &		#Priority will be ---> PR =  20 + (-1) = 19
+		
+		$renice -n NICE-VALUE PROCESS-ID
+		 renice -n 10 14740								#Priority will be ---> PR = 20 + (10) = 30
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Tuned Profiles:
+		->Show tuned service
+			$systemctl status tuned 
+		
+		->Display all available profiles 
+			$tuned-adm list 
+		
+		->Show current active profile 
+			$tuned-adm active
+		
+		->Changing profile 
+			$tuned-adm profile PROFILE-NAME	
+----------------------------------------------------------------------------------------------------------------------------------------
+Schedule Tasks using at and corn:
+ 	dirctory: /etc/cron.d/
+	 
+	->For more details 
+	 	$man 5 crontab
+
+	->View the crontab which has an example of job definition
+		$cat /etc/crontab (deprecated)
+	
+	->Add a task to a user crontab 
+		$crontab -e
+	
+	->List task to a specific  user's crontab
+		$crontab -l 
+	
+	->Schedule a task using the at command
+		$at time	( to exit contrl+d )
+	
+	->List the scheduled jobs: 
+		$atq
+	
+	->Delete a job
+		$atrm job_num
+----------------------------------------------------------------------------------------------------------------------------------------
+Schedule Tasks using Systemd Timers:
+	->For more details about systemd timers
+		$man 7 systemd-timer
+
+	->For more specification of time format to be used 
+		$man 8 systemd-time
+----------------------------------------------------------------------------------------------------------------------------------------
+Add user at sudo access:
+	1- Login as root
+		$su
+	2- Verify the user exist or not
+		$id USER_NAME
+	3- Append user account to the wheel group
+		$usermod -aG wheel USER_NAME
+	
+	Customize sudo configuration
+		$visudo
+			linda           ALL=/usr/sbin/useradd, /usr/bin/passwd, /usr/sbin/fdisk 
+			
+			#user linda will only abble to use these commands as a root privilege
+----------------------------------------------------------------------------------------------------------------------------------------
+Managing Networking:
+	Utilities:
+		- ip 
+		- nmcli ==> Network Management Command-Line Interface
+		- nmtui ==> Network Manager Text User Interface
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	1.ip
+		->Show the Netowrk Devices Names
+			$ip link show 
+			$ip -s link show	--> show statistics
+
+		->Show Specific Interface information (ipv4/ipv6 address)
+			$ip address show 	--> All interfaces
+			$ip address show LINK_NAME/INTERFACE_NAME
+			
+		->Show Specific Interface information (ipv4/ipv6 address) + statistics information
+			$ip -s address show LINK_NAME/INTERFACE_NAME
+			
+		->Add a secondary ip to a Device (At Run Time == Not persistant)
+			$ip addr add dev DEVICE-NAME ipv4/subnetmask
+			 ip addr add dev ens33 10.1.1.10/24
+		
+		->Add a secondary ip to a Device (At Run time and persistant at the same time)
+			$nmtui			#add the seconad ip
+			$nmcli connection up filename /etc/sysconfig/network-scripts/ifcfg-ens33
+
+		->Show default routes (which include default gateway)
+			$ip route show
+
+		->Add default gateway
+			$ip route add default via GW_addr dev DEVICE
+			 ip route add default via 192.168.91.10 dev eth0
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	2.nmcli and nmtui
+		->Show the status of NetowrkManager service
+			$systemctl status NetowrkManager
+			$rpm -qa | grep bash-completion				#for completion capablities while working with nmcli
+		
+		->Show examples using nmcli
+			$man nmcli-examples
+
+		->Show the Newtwork Devices Attacted
+			$nmcli dev status  
+			$ls /sys/class/net
+
+		->Show Active connections
+			$nmcli connection show --active
+
+		->Show Active connections with more infromation
+			$nmcli dev show
+			
+		->Edit the Network Devices GUI Based
+			$nmtui
+
+		->Locations of network scripts	
+			/etc/sysconfig/network-scripts/
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+		ss  is  used  to dump socket statistics. It allows showing information similar to netstat.  
+		It can display more	TCP and state information than other tools.
+
+	->DNS Server 
+		$cat /etc/resolv.conf 
+		$dig
+	
+	->Check all the listening ports and services of your machine
+		$netstat -ntlp
+----------------------------------------------------------------------------------------------------------------------------------------
+Manage users and groups:
+	/etc/passwd			 -->	used to store user properties.
+	/etc/shadow			 -->	used to store password properties.
+	/etc/default/useradd -->	default setting apply to useradd only, you can view them using useradd -D.
+	/etc/login.defs		 -->	defualts parameters for our login password aging information for a user create.
+						#PASS_MAX_DAYS   Maximum number of days a password may be used.
+						#PASS_MIN_DAYS   Minimum number of days allowed between password changes.
+						#PASS_MIN_LEN    Minimum acceptable password length.
+						#PASS_WARN_AGE   Number of days warning given before a password expires.
+							
+						PASS_MAX_DAYS	99999
+						PASS_MIN_DAYS	0
+						PASS_MIN_LEN	7
+						
+						PASS_MAX_DAYS --> Maximum number of days before a password must be changed == password expires.
+						PASS_MIN_DAYS --> Minmum number of days before a password can be changed.
+						PASS_MIN_LEN  --> Minmum number of days to warn a user before their password is set to expire.
+	/etc/skel	--> Files in /etc/skel are created to the user home directory upon creation.
+	/etc/group	-->	show all of te groups that are created and the memebership for that group.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	$passwd USERNAME  					--> used for change password of specific user.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	$usermod  							--> can use it to prevent a user from login to interactive shell and change the user group.
+	 usermod -G GROUPNAME USERNAME		--> change the secondary group 
+	 usermod -aG GROUPNAME USERNAME		--> append user to new supplementary group.
+	 usermod -g GROUPNAME USERNAME	 	--> change the primary group of a user.
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	$chage   							--> used for change information of a specific user.
+	$id USER_NAME						-->	get all infromation about specific user (uid gid groups).
+	$groups USER_NAME USER_NAME			--> get all groups of a user.
+	$getent group USER_NAME 			-->	get all the groups that a user belongs to.
+
+	Note: To get date in yyyy-mm-dd after number of days
+			$date -d '+40days' +%F  -> get the date after 40days.
+----------------------------------------------------------------------------------------------------------------------------------------
+Manage Local Repository: 
+	1. Create an ISO image: dd if=/dev/sr0 of=/rhel8.iso bs=1M
+	2. Create a directory /rep: mkdir /repo
+	3. Edit /etc/fstab and add the following line to the end
+		/rhel8.iso	/repo	iso9660	defualts	0	0
+	4. systemctl daemon-reload
+	5. Use mount -a 
+	6. Create the file /etc/yum.repos.d/appstream.repo 
+		$vim /etc/yum.repos.d/appstream.repo
+			[AppStream]
+			name=AppStream
+			baseurl=file:///repo/AppStream
+			gpgcheck=0
+	7. Create the file /etc/yum.repos.d/base.repo  
+		$vim /etc/yum.repos.d/base.repo
+			[BaseOS]
+			name=BaseOS
+			baseurl=file:///repo/BaseOS 
+			gpgcheck=0
+	8. $yum repolist
+	9. $createrepo /repo
+----------------------------------------------------------------------------------------------------------------------------------------
+Managing Packages with yum:
+	->Searching for software in packages name and description
+		$yum search
+	
+	->Installing packages						   
+		$yum install 				   	
+	
+	->Remove packages
+		$yum remove 
+	
+	->Update all packages on your system 				  	
+		$yum update
+	
+	->Update specific package only including its dependencies					
+		$yum update PACKAGE-NAME
+	
+	->Deep Searching for software in files of all packages 		
+		$yum provides	
+	
+	->List all installed the packages 				
+		$yum list installed
+	
+	->Gives a list of recently issued commands  		
+		$yum history	
+	
+	->Allows you to undo a specific command, based on the history infromation.				
+		$yum history undo NUMBER
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	Install Packages Using Groups:
+		- yum groups are provided to give access to specific categories of software.
+		#Gives a list of most common yum groups
+			$yum group list 
+		
+		#Show all yum groups 							
+			$yum groups list hidden	
+		
+		#Show which packages are in a group 					
+			$yum groups info "GROUP-NAME"
+		
+		#Install specific yum group			
+			$yum groups install "GROUP-NAME"
+		
+		#Install specific yum group with optional packages		
+			$yum groups install --with-optional "GROUP-NAME"
+----------------------------------------------------------------------------------------------------------------------------------------
+RPM queries:
+	- useful though to perform package queries
+	
+	->query/verify package(s) owning file
+		$rpm -qf /any/file			
+		 rpm -qf /etc/tcsd.conf
+	->list files in package	
+		$rpm -ql mypackage	
+		 rpm -ql trousers-0.3.13-1.el7.x86_64		
+	
+	->list all configuration files
+		$rpm -qc mypackage
+		 rpm -qc trousers-0.3.13-1.el7.x86_64		
+	
+	->query/verify a package file
+		$rpm -qp --scripts mypackage-file.rpm 
+----------------------------------------------------------------------------------------------------------------------------------------
+Manage Security:
+	Firewall:
+		$sudo -s
+		$yum install firewalld  firewall-config			#firewall-config is GUI interface for firewalld 
+		$systemctl start firewalld
+		$systemctl enable firewalld
+		
+		->Check the status of the service
+			$firewall-cmd --state
+
+		->Show all the zones available:
+			$firewall-cmd --get-zones
+			
+		->Show the current active zones(public-zone by default):
+			$firewall-cmd --get-default-zone
+			
+		->Show all the rules for active zone:
+			$firewall-cmd --list-all
+			
+		->Show all rules for specified zone:
+			$firewall-cmd --zone=ZONENAME --list-all
+			
+		->Add source to a specified zone:
+			$firewall-cmd --zone=ZONENAME --add-source=NETWORK-IP-ADD
+			firewall-cmd --zone=home --add-source=192.168.1.0/24					(running-time only)		
+			firewall-cmd --zone=home --add-source=192.168.1.0/24  --permanet		(persistant)
+			firewall-cmd --reload
+		
+		->Add service
+			$firewall-cmd --zone=ZONENAME --add-service=SERVICE-NAME --permanent	(persistant)
+			firewall-cmd --zone=public --add-service=ssh --permanent
+		
+		->Open port to a specified zone:
+			$firewall-cmd --zone=ZONENAME --add-port=PORT_NUM/PROTOCOL 
+			firewall-cmd --zone=home --add-port=80/tcp								(running-time only)	
+			firewall-cmd --zone=home --permanet --add-port=80/tcp					(persistant)
+			firewall-cmd --reload
+	-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+	SELinux:
+		REF:https://web.mit.edu/rhel-doc/5/RHEL-5-manual/Deployment_Guide-en-US/ch-selinux.html
+		- If a service such as HTTPD is compromised then the attacker could protentially have acress to all open permission files on 
+		  your system, the SELinux solve this problem.
+		- SELinux defines a set of rules that dertermine what process can access specific files and locations on a file system
+		- A context is assigned to every process,directory and port whcih used to determine if a process can access that specific resource
+		- SELinux two modes
+			1. Enabled:
+				-> Enforcing - The SELinux security policy is enforced. (fully operational)
+				-> Passive	 - The SELinux system prints warnings but does not enforce policy. This is useful for debugging and troubleshooting purposes.
+			2. Disabled  - SELinux is fully disabled. SELinux hooks are disengaged from the kernel and the pseudo-file system is unregistered.
+			To change the mode must manually edit the file in /etc/selinux/config and must reboot occur in order to enter disable mode
+		
+		->Configuration File location
+			/etc/sysconfig/selinux  (symoblic-link to the original file /etc/selinux/config)
+
+		->Show the SELinux mode	
+			$getenforce 
+			
+		->Set in permissive mode
+			$setenforce 0		|| 		$setenfore permissive
+			
+		->Set in Enforcing mode
+			$setenforce 1		||		$setenforce enforcing
+			
+		->File controls the state of SELinux on the system	
+			/etc/selinux/config
+			
+		->Displays the detailed status of a system running SELinux
+			/usr/sbin/sestatus -v 
+			
+		->Tool for control the settings of SElinux
+			$yum install selinux-policy-devel
+			$yum install setools-devel
+			$yum install setools-gui
+			
+			$yum install policycoreutils-gui
+			$yum install setroubleshoot-server
+			
+		->List all the available context and files that are associated with
+			$semanage fcontext -l 
+			 semanage fcontext -l | grep httpd ==> view all the content and files associated with httpd service
+			
+		->Get a security information
+			$ps auxZ  
+			 ps auxZ | grep httpd
+			
+		->Restore the context of a file
+			$resotrecon FILENAME 
+		
+		->Restore the context on a directory
+			$resotrecon -Rv /etc/
+			
+		->Create a file autorelabel to relabel everything on file system when we reboot 
+			$touch /.autorelabel
+		
+		Note: Boolean is enable or disable a specific feature for a specific service
+
+		->Show all SELinux boolean values 
+			$getsebool -a 			(running-time)
+			$semanage boolean -l 	(running-time , persistant)
+
+		->Enable SELinux boolean value for a service for running-time
+			$setsbool BOOLEAN_NAME on 
+		
+		->Enable SELinux boolean value for a service for persistant
+			$setsbool -P BOOLEAN_NAME on
+			
+		->Allow or disable httpd to read home directories for running-time only
+			$setsebool FEATURE on/off
+			 setsebool http_enable_homedirs on
+			 setsebool http_enable_homedirs off
+
+		->Allow or disable httpd to read home directories for persistant
+			$setsebool -P FEATURE on/off
+			 setsebool -P http_enable_homedirs on
+			 setsebool -P http_enable_homedirs off
+----------------------------------------------------------------------------------------------------------------------------------------
+Apache
+	- Apache (httpd) is a leading web server on Linux.
+	- Nginx is the other leading web server.
+	- The main httpd configuration file is /etc/http/conf/httpd.conf
+	- Additional snap-in files can be stored in /etc/httpd/conf.d/ 
+	- The default DocumentRoot is /var/www/htdocs.
+	- Apache looks for a file with name index.html in this directory.
+
+		Configuration file: /etc/http/conf/httpd.conf
+
+
+	Install:
+		$yum install httpd
+		$systemctl enable --now httpd
+		
+		$curl http://localhost
+----------------------------------------------------------------------------------------------------------------------------------------
+...s
