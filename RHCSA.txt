@@ -1,4 +1,3 @@
-This is example of conflect
 ----------------------------------------------------------------------------------------------------------------------------------------
 The Linux Kernel
 	REF:https://www.redhat.com/en/topics/linux/what-is-the-linux-kernel
